@@ -2,7 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-
+.font-rubik {
+    font-family: rubik, sans-serif;
+  }
 #movie-backdrop {
     width: 100%;
 }

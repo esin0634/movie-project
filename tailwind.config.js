@@ -19,11 +19,11 @@ module.exports = {
       'gray': '#8492a6',
       'gray-light': '#d3dce6',
     },
-    fontFamily: {
-      sans: ['Graphik', 'sans-serif'],
-      serif: ['Merriweather', 'serif'],
-    },
+   
     extend: {
+      fontFamily:{
+        "press-start" : ['"Press Start 2P"', 'cursive']
+      },
       spacing: {
         '128': '32rem',
         '144': '36rem',
