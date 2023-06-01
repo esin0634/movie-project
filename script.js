@@ -5,11 +5,15 @@ const PROFILE_BASE_URL = "http://image.tmdb.org/t/p/w185";
 const BACKDROP_BASE_URL = "http://image.tmdb.org/t/p/w780";
 const CONTAINER = document.querySelector(".container");
 
-// Don't touch this function please
+const homeBtn = document.querySelector(".home-btn")
+
+// AUTORUN 
 const autorun = async () => {
   const movies = await fetchMovies();
   renderMovies(movies.results);
 };
+
+
 
 // Don't touch this function please
 const constructUrl = (path) => {
@@ -18,47 +22,65 @@ const constructUrl = (path) => {
   )}`;
 };
 
+
+// FETCH PARTICULAR MOVIE
 // You may need to add to this function, definitely don't delete it.
 const movieDetails = async (movie) => {
   const movieRes = await fetchMovie(movie.id);
   renderMovie(movieRes);
 };
 
-// This function is to fetch movies. You may need to add it or change some part in it in order to apply some of the features.
+// FETCH NOW_PLAYING MOVIES
 const fetchMovies = async () => {
   const url = constructUrl(`movie/now_playing`);
   const res = await fetch(url);
   return res.json();
 };
 
-// Don't touch this function please. This function is to fetch one movie.
+// FETCH ONE MOVIE
 const fetchMovie = async (movieId) => {
   const url = constructUrl(`movie/${movieId}`);
   const res = await fetch(url);
   return res.json();
 };
 
-// You'll need to play with this function in order to add features and enhance the style.
+// RENDER MOVIES
 const renderMovies = (movies) => {
+  CONTAINER.innerHTML = ""
   movies.map((movie) => {
+    // console.log(movie)
     const movieDiv = document.createElement("div");
     movieDiv.innerHTML = `
         <img src="${BACKDROP_BASE_URL + movie.backdrop_path}" alt="${
       movie.title
     } poster">
         <h3>${movie.title}</h3>`;
+    
     movieDiv.addEventListener("click", () => {
       movieDetails(movie);
     });
+    
     CONTAINER.appendChild(movieDiv);
+    CONTAINER.classList.add("bg-cover", "grid", "grid-cols-1", "gap-4","md:grid-cols-2", "lg:grid-cols-3", "p-20" )
   });
-};
 
-// You'll need to play with this function in order to add features and enhance the style.
+
+};
+// ////////////////////////////////////////////////////////
+// FATCH CAST
+const fetchActors = async (movieId) => {
+  const url = constructUrl(`movie/${movieId}/credits`);
+  const res = await fetch(url);
+  return res.json();
+}
+///////////////////////////////////////////////////////////
+// RENDER ONE MOVIE
 const renderMovie = (movie) => {
+  
+  console.log(movie)
   CONTAINER.innerHTML = `
     <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-4 bg-yellow ">
              <img id="movie-backdrop" src=${
                BACKDROP_BASE_URL + movie.backdrop_path
              }>
@@ -74,8 +96,16 @@ const renderMovie = (movie) => {
         </div>
         </div>
             <h3>Actors:</h3>
-            <ul id="actors" class="list-unstyled"></ul>
+            <ul id="actors" class="list-unstyled">
+            
+            </ul>
     </div>`;
-};
+
+  };
+  
+
+homeBtn.addEventListener("click", autorun );
+
 
 document.addEventListener("DOMContentLoaded", autorun);
+

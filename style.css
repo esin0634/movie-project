@@ -1,3 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
 #movie-backdrop {
     width: 100%;
 }
@@ -9,3 +14,20 @@
 #actors {
     margin: 24px 16px 0 0;
 }
+
+@keyframes clickEffect {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(0.9);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+
+  .custom-cursor {
+    cursor: pointer; /* İmleç şekli "pointer" olarak ayarlandı */
+  }
