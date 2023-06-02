@@ -22,7 +22,7 @@ const constructUrl = (path) => {
 const autorun = async () => {
   const movies = await fetchMovies();
   renderMovies(movies.results);
-};
+}; 
 
 
 
@@ -46,7 +46,13 @@ const movieDetails = async (movie) => {
   const movieRes = await fetchMovie(movie.id);
   const castcrewRes = await fetchActors(movie.id)
   const actorsRes = castcrewRes["cast"].slice(0, 5)
-  renderMovie(movieRes, actorsRes);
+  
+  const similarMovieList =  await fetchSimilarMovies(movie.id)
+  const similarMoviesRes= similarMovieList["results"].slice(0, 5)
+
+  console.log(similarMovieList)
+  
+  renderMovie(movieRes, actorsRes, similarMoviesRes);
 };
 
 /// esin fetch functions START ///
@@ -56,6 +62,12 @@ const fetchActors = async (movieId) => {
   const url = constructUrl(`movie/${movieId}/credits`);
   const res = await fetch(url);
   return res.json();
+}
+
+const fetchSimilarMovies = async (movieId) =>{
+  const url = constructUrl(`/movie/${movieId}/similar`)
+  const res = await fetch(url)
+  return res.json()
 }
 /// esin fetch functions END ///
 
@@ -86,9 +98,15 @@ const renderMovies = (movies) => {
 
 
 // RENDER ONE MOVIE
-const renderMovie = (movie, actors) => {
+const renderMovie = (movie, actors, similarMovies) => {
   console.log(movie)
-  console.log(actors)
+  // console.log(actors)
+  let language
+  if (movie.original_language === "en"){
+    language = "English"
+  }else{
+    language = "?"
+  }
 
   CONTAINER.innerHTML = `
   <div class="row">
@@ -103,21 +121,30 @@ const renderMovie = (movie, actors) => {
     movie.release_date
   }</p>
   <p id="movie-runtime"><b>Runtime:</b> ${movie.runtime} Minutes</p>
+  <p id="language"> <b>Language:</b> ${language} </p>
   <h3>Overview:</h3>
   <p id="movie-overview">${movie.overview}</p>
   </div>
   <div>
   <h3>Actors:</h3>
-  <ul id="movie-page-actors-ul-item" class="list-unstyled">
-  
+  <ul id="movie-page-actors-ul-item" class="flex flex-row">
   </ul>
-  </div>`;
+  </div>
   
-  //Render Actors in One Movie Page
+  <div>
+  <h3>Similar Movies:</h3>
+  <ul id="similar-movies-ul-item" class="flex flex-row">
+
+  </ul>
+  </div>
+  
+  `;
+  
+  //Render Actors in One Movie Page start //
   const moviePageActors = document.querySelector("#movie-page-actors-ul-item")
   actors.map((actor => {
     const actorLiElement = document.createElement("li")
-    actorLiItem.innerHTML = `
+    actorLiElement.innerHTML = `
     <img src="${PROFILE_BASE_URL + actor.profile_path}" alt="${actor.profile_path}" >
     <h4 id= "actor-name"> ${actor.name} </h4>
     <p><span style= "color:gray "> ${actor.character} </span> </p>
@@ -128,7 +155,16 @@ const renderMovie = (movie, actors) => {
   
     console.log(actorLiElement)
     moviePageActors.appendChild(actorLiElement)
+
+    
+    
   }))
+  //Render Actors in One Movie Page end //
+
+  //Render Similar Movies start //
+  const  similarMoviesUl = document.querySelector("#similar-movies-ul-item")
+
+  console.log(similarMovies)
 
 };
 
