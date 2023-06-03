@@ -5,6 +5,8 @@ const PROFILE_BASE_URL = "http://image.tmdb.org/t/p/w185";
 const BACKDROP_BASE_URL = "http://image.tmdb.org/t/p/w780";
 const CONTAINER = document.querySelector(".container");
 
+const YOUTUBE_BASE_URL = "https://www.youtube.com/watch?v="
+
 const homeBtn = document.querySelector(".home-btn")
 
 
@@ -35,8 +37,8 @@ const fetchMovies = async () => {
 
 
 const fetchMovie = async (movieId) => {
-  const url = constructUrl(`movie/${movieId}`);
-  const res = await fetch(url);
+  const urL = constructUrl(`movie/${movieId}`);
+  const res = await fetch(urL);
   return res.json();
 };
 
@@ -44,15 +46,17 @@ const fetchMovie = async (movieId) => {
 // You may need to add to this function, definitely don't delete it.
 const movieDetails = async (movie) => {
   const movieRes = await fetchMovie(movie.id);
+
   const castcrewRes = await fetchActors(movie.id)
   const actorsRes = castcrewRes["cast"].slice(0, 5)
   
   const similarMovieList =  await fetchSimilarMovies(movie.id)
   const similarMoviesRes= similarMovieList["results"].slice(0, 5)
 
-  console.log(similarMovieList)
-  
-  renderMovie(movieRes, actorsRes, similarMoviesRes);
+  const videosRes = await fetchVideos(movie.id)
+  const trailerRes = videosRes["results"].pop()
+
+  renderMovie(movieRes, actorsRes, similarMoviesRes, trailerRes);
 };
 
 /// esin fetch functions START ///
@@ -69,6 +73,13 @@ const fetchSimilarMovies = async (movieId) =>{
   const res = await fetch(url)
   return res.json()
 }
+
+const fetchVideos = async (movieId) =>{
+  const url = constructUrl(`/movie/${movieId}/videos`)
+  const res = await fetch(url)
+  return res.json()
+}
+
 /// esin fetch functions END ///
 
 
@@ -98,9 +109,15 @@ const renderMovies = (movies) => {
 
 
 // RENDER ONE MOVIE
-const renderMovie = (movie, actors, similarMovies) => {
-  console.log(movie)
-  // console.log(actors)
+const renderMovie = (movie, actors, similarMovies, trailerRes) => {
+  
+  // Render Trailer start//
+   const movieKey = trailerRes["key"]
+   const videoSrc = YOUTUBE_BASE_URL+movieKey
+
+   console.log(videoSrc)
+  //Render Trailer end // 
+
   let language
   if (movie.original_language === "en"){
     language = "English"
@@ -128,16 +145,25 @@ const renderMovie = (movie, actors, similarMovies) => {
   <div>
   <h3>Actors:</h3>
   <ul id="movie-page-actors-ul-item" class="flex flex-row">
+  <!-- actors  -->
   </ul>
   </div>
   
   <div>
   <h3>Similar Movies:</h3>
   <ul id="similar-movies-ul-item" class="flex flex-row">
-
+  <!-- similar movies  -->
   </ul>
   </div>
-  
+
+  <div>
+  <!-- trailer -->
+  <!-- Embed YouTube video -->
+        <iframe width="560" height="315" src="${videoSrc}" frameborder="0" allowfullscreen></iframe>
+  </video>
+
+  </div>
+
   `;
   
   //Render Actors in One Movie Page start //
@@ -153,18 +179,33 @@ const renderMovie = (movie, actors, similarMovies) => {
     //   actorDetails(?????);
     // });
   
-    console.log(actorLiElement)
     moviePageActors.appendChild(actorLiElement)
-
-    
-    
   }))
   //Render Actors in One Movie Page end //
 
+  
   //Render Similar Movies start //
   const  similarMoviesUl = document.querySelector("#similar-movies-ul-item")
+  similarMovies.map((movie) => {
+    const movieDiv = document.createElement("div");
+    movieDiv.innerHTML = `
+        <img src="${BACKDROP_BASE_URL + movie.backdrop_path}" alt="${
+      movie.title
+    } poster">
+        <h3>${movie.title}</h3>`;
+    
+    movieDiv.addEventListener("click", () => {
+      movieDetails(movie);
+    });
 
-  console.log(similarMovies)
+    similarMoviesUl.appendChild(movieDiv)
+  },
+  //Render Similar Movies end //
+  )
+
+
+ 
+
 
 };
 
