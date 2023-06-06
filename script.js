@@ -168,19 +168,21 @@ const renderMovie = (movie, actors, similarMovies, trailerRes) => {
   
   //Render Actors in One Movie Page start //
   const moviePageActors = document.querySelector("#movie-page-actors-ul-item")
-  actors.map((actor => {
-    const actorLiElement = document.createElement("li")
-    actorLiElement.innerHTML = `
+  actors.map((actor) => {
+    const actorElement = document.createElement("div")
+    actorElement.innerHTML = `
     <img src="${PROFILE_BASE_URL + actor.profile_path}" alt="${actor.profile_path}" >
     <h4 id= "actor-name"> ${actor.name} </h4>
     <p><span style= "color:gray "> ${actor.character} </span> </p>
-    `
-    // actorLiItem.addEventListener("click", () => {
-    //   actorDetails(?????);
-    // });
-  
-    moviePageActors.appendChild(actorLiElement)
-  }))
+    `;
+
+    actorElement.addEventListener("click", () =>{
+      // actorDetails(actor)
+      console.log(actor)
+    } );
+    
+    moviePageActors.appendChild(actorElement)
+  });
   //Render Actors in One Movie Page end //
 
   
@@ -195,13 +197,13 @@ const renderMovie = (movie, actors, similarMovies, trailerRes) => {
         <h3>${movie.title}</h3>`;
     
     movieDiv.addEventListener("click", () => {
+      console.log("hi")
       movieDetails(movie);
     });
 
     similarMoviesUl.appendChild(movieDiv)
-  },
+  });
   //Render Similar Movies end //
-  )
 
 
  
