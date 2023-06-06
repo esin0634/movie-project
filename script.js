@@ -178,7 +178,7 @@ const renderMovie = (movie, actors, similarMovies, trailerRes) => {
 
     actorElement.addEventListener("click", () =>{
       // actorDetails(actor)
-      console.log(actor)
+      // console.log(actor)
     } );
     
     moviePageActors.appendChild(actorElement)
@@ -221,3 +221,4 @@ homeBtn.addEventListener("click", autorun );
 
 document.addEventListener("DOMContentLoaded", autorun);
 
+//git branch deneme
