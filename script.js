@@ -48,6 +48,7 @@ const movieDetails = async (movie) => {
   const movieRes = await fetchMovie(movie.id);
 
   const castcrewRes = await fetchActors(movie.id)
+  const directorRes = castcrewRes.crew.filter(({job})=> job ==='Director')
   const actorsRes = castcrewRes["cast"].slice(0, 5)
   
   const similarMovieList =  await fetchSimilarMovies(movie.id)
@@ -56,10 +57,31 @@ const movieDetails = async (movie) => {
   const videosRes = await fetchVideos(movie.id)
   const trailerRes = videosRes["results"].pop()
 
-  renderMovie(movieRes, actorsRes, similarMoviesRes, trailerRes);
+  renderMovie(movieRes, actorsRes, similarMoviesRes, trailerRes, directorRes);
 };
 
+const actorDetails = async ( actor ) =>{
+  const actorRes = await fetchActor(actor.id)
+  const actorMoviesRes = await fetchActorMovies(actor.id)
+  renderActor(actorRes, actorMoviesRes)
+
+}
+
 /// esin fetch functions START ///
+const fetchActorMovies = async ( actorId ) =>{
+  const url = constructUrl(`/person/${actorId}/movie_credits`);
+  const res = await fetch(url);
+  return res.json();
+}
+
+
+
+
+const fetchActor = async ( actorId ) =>{
+  const url = constructUrl(`/person/${actorId}`);
+  const res = await fetch(url);
+  return res.json();
+}
 
 
 const fetchActors = async (movieId) => {
@@ -109,11 +131,13 @@ const renderMovies = (movies) => {
 
 
 // RENDER ONE MOVIE
-const renderMovie = (movie, actors, similarMovies, trailerRes) => {
-  
+const renderMovie = (movie, actors, similarMovies, trailerRes, directorRes) => {
+  console.log(movie)
   // Render Trailer start//
    const movieKey = trailerRes["key"]
    const videoSrc = YOUTUBE_BASE_URL+movieKey
+   const directors = directorRes.map((director) => director.name)
+   console.log(directors)
 
    console.log(videoSrc)
   //Render Trailer end // 
@@ -139,9 +163,20 @@ const renderMovie = (movie, actors, similarMovies, trailerRes) => {
   }</p>
   <p id="movie-runtime"><b>Runtime:</b> ${movie.runtime} Minutes</p>
   <p id="language"> <b>Language:</b> ${language} </p>
-  <h3>Overview:</h3>
+  <h3><b>Overview:</b></h3>
   <p id="movie-overview">${movie.overview}</p>
   </div>
+  <div>
+  <p id="production-company"> <b>Production Company:</b>${movie["production_companies"][0]["name"]} </p>
+  <img id="movie-backdrop" src=${
+    BACKDROP_BASE_URL + movie["production_companies"][0]["logo_path"]
+  }>
+  </div>
+  <p id="director"> <b>Director:</b> ${directors} </p>
+  
+  <p id="movie-rating"> <b>Movie Rating:</b> ${movie.vote_average} </p>
+  <p id="movie-votes"> <b>Movie Votes:</b> ${movie.vote_count} </p>
+
   <div>
   <h3>Actors:</h3>
   <ul id="movie-page-actors-ul-item" class="flex flex-row">
@@ -177,7 +212,7 @@ const renderMovie = (movie, actors, similarMovies, trailerRes) => {
     `;
 
     actorElement.addEventListener("click", () =>{
-      // actorDetails(actor)
+      actorDetails(actor)
       // console.log(actor)
     } );
     
@@ -197,7 +232,6 @@ const renderMovie = (movie, actors, similarMovies, trailerRes) => {
         <h3>${movie.title}</h3>`;
     
     movieDiv.addEventListener("click", () => {
-      console.log("hi")
       movieDetails(movie);
     });
 
@@ -205,12 +239,52 @@ const renderMovie = (movie, actors, similarMovies, trailerRes) => {
   });
   //Render Similar Movies end //
 
-
- 
-
-
 };
 
+
+const renderActor = (actorRes, actorMoviesRes) =>{
+  
+  const actorMovies = actorMoviesRes.cast.splice(0,5)
+  console.log(actorMovies)
+
+  CONTAINER.innerHTML = `
+    <div class="row">
+      <h1>${actorRes.name} </h1>
+      <p> Gender: ${actorRes.gender === 2 ? "male" : "female"}
+      <img src="${PROFILE_BASE_URL + actorRes.profile_path}" alt="${actorRes.profile_path}" >
+      <p> <span> Popularity : </span> ${actorRes.popularity} </p>
+      <p> <span> Birthday : </span> ${actorRes.birthday} </p>
+      ${actorRes.deathday !== null ? ` <p> <span> Deathday : </span> ${actorRes.deathday} </p>` : ""}
+      <p> <span> Biography : </span> ${actorRes.biography}
+      <div>
+        <h3>Actor Movies:</h3>
+        <ul id="actor-movies-ul-item" class="flex flex-row">
+        <!-- similar movies  -->
+        </ul>
+      </div>
+
+    </div>
+  
+  `
+  
+  // movies the actor participated in Render 
+  const actorMoviesUl = document.querySelector("#actor-movies-ul-item")
+  actorMovies.map((movie) => {
+    const movieDiv = document.createElement("div");
+    movieDiv.innerHTML = `
+        <img src="${BACKDROP_BASE_URL + movie.backdrop_path}" alt="${
+      movie.title
+    } poster">
+        <h3>${movie.title}</h3>`;
+    
+    movieDiv.addEventListener("click", () => {
+      movieDetails(movie);
+    });
+
+    actorMoviesUl.appendChild(movieDiv)
+  });
+  
+}
 
 
 
